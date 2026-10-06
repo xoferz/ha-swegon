@@ -22,6 +22,7 @@ DATA_TYPES["percent"] = DATA_TYPE(PERCENTAGE, None, None, None)
 DATA_TYPES["pressure"] = DATA_TYPE(UnitOfPressure.PA, SensorDeviceClass.PRESSURE, None, None)
 DATA_TYPES["temperature"] = DATA_TYPE(UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE, None, None)
 DATA_TYPES["voc"] = DATA_TYPE(CONCENTRATION_PARTS_PER_MILLION, SensorDeviceClass.VOLATILE_ORGANIC_COMPOUNDS_PARTS, None, None)
+DATA_TYPES["rpm"] = DATA_TYPE("rpm", None, None, "mdi:fan")
 
 SwegonEntity = namedtuple('SwegonEntity', ['group', 'key', 'entityName', 'data_type'])
 ENTITIES = [
@@ -63,6 +64,17 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
 
     # Create entities for this device
     for swegonentity in ENTITIES:
+        if (
+            swegonentity.group == "Sensors2"
+            and swegonentity.key == "Heat_Exchanger"
+            and coordinator.has_datapoint("R7Config", "Summer_Night_Cooling")
+        ):
+            swegonentity = SwegonEntity(
+                swegonentity.group,
+                swegonentity.key,
+                "Rotor Speed",
+                DATA_TYPES["rpm"],
+            )
         ha_entities.append(SwegonSensorEntity(coordinator, swegonentity))
 
     async_add_devices(ha_entities, True)

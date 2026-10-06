@@ -19,4 +19,5 @@ DEFAULT_SCAN_INTERVAL_FAST: int = 5  # Seconds
 
 # Device types - Name and device file
 DEVICE_CASA_R4 = "CASA R4"
+DEVICE_CASA_R7 = "CASA R7"
 DEVICE_CASA_R15 = "CASA R15"

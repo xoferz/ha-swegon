@@ -13,6 +13,15 @@ _LOGGER = logging.getLogger(__name__)
 # Creating nested dictionary of key/pairs
 OPTIONS = {
     "Op_Mode": {0: "stopped", 1: "away", 2: "home", 3: "boost", 4: "travel"},
+    "Summer_Night_Cooling": {
+        0: "Off",
+        1: "Low",
+        2: "Normal",
+        3: "High",
+        4: "Full",
+        5: "User",
+    },
+    "Temperature_Control_Mode": {1: "ECO", 2: "Comfort"},
 }
 
 DATA_TYPE = namedtuple('DataType', ['category', 'icon'])
@@ -20,6 +29,8 @@ DATA_TYPE = namedtuple('DataType', ['category', 'icon'])
 SwegonEntity = namedtuple('SwegonEntity', ['group', 'key', 'entityName', 'data_type', 'options'])
 ENTITIES = [
     SwegonEntity("Commands", "Op_Mode", "Operating Mode", DATA_TYPE(None, None), OPTIONS["Op_Mode"]),
+    SwegonEntity("R7Config", "Summer_Night_Cooling", "Summer Night Cooling", DATA_TYPE(None, "mdi:weather-night"), OPTIONS["Summer_Night_Cooling"]),
+    SwegonEntity("R7Config", "Temperature_Control_Mode", "Temperature Control Mode", DATA_TYPE(None, "mdi:heat-wave"), OPTIONS["Temperature_Control_Mode"]),
     SwegonEntity(None, "Config_Selection", "Config Selection", DATA_TYPE(EntityCategory.CONFIG, None), None),
 ]
 
@@ -33,7 +44,8 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
 
     # Create entities for this device
     for swegonentity in ENTITIES:
-        ha_entities.append(SwegonSelectEntity(coordinator, swegonentity))
+        if swegonentity.group is None or coordinator.has_datapoint(swegonentity.group, swegonentity.key):
+            ha_entities.append(SwegonSelectEntity(coordinator, swegonentity))
 
     async_add_devices(ha_entities, True)
 
@@ -48,9 +60,11 @@ class SwegonSelectEntity(SwegonBaseEntity, SelectEntity):
         """Select Entity properties"""
         if self._key == "Config_Selection":
             self._options = self.coordinator.get_config_options()
-        else:
+        elif self._key == "Op_Mode":
             self._options = swegonentity.options
             self._attr_translation_key = "op_mode"
+        else:
+            self._options = swegonentity.options
 
     @property
     def current_option(self):

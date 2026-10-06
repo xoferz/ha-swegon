@@ -14,7 +14,7 @@ from typing import Any
 from homeassistant.const import CONF_DEVICES
 from .const import DOMAIN, CONF_NAME, CONF_DEVICE_MODEL, CONF_IP, CONF_PORT, CONF_SLAVE_ID, CONF_SCAN_INTERVAL, CONF_SCAN_INTERVAL_FAST
 from .const import DEFAULT_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL_FAST
-from .const import DEVICE_CASA_R4, DEVICE_CASA_R15
+from .const import DEVICE_CASA_R4, DEVICE_CASA_R7, DEVICE_CASA_R15
 
 CONFIG_ENTRY_NAME = "Swegon"
 
@@ -69,7 +69,7 @@ class SwegonOptionsFlowHandler(OptionsFlow):
 """ ################################################### """
 # Schema taking device details when adding or updating
 def getDeviceSchema(user_input: dict[str, Any] | None = None) -> vol.Schema:
-    DEVICE_TYPES = [DEVICE_CASA_R4, DEVICE_CASA_R15]
+    DEVICE_TYPES = [DEVICE_CASA_R4, DEVICE_CASA_R7, DEVICE_CASA_R15]
 
     data_schema = vol.Schema(
         {

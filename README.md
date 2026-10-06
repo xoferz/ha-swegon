@@ -24,4 +24,4 @@ Connect terminals 1 and 2 to the USR-W610.
 
 ## Supported devices
 
-Implemented using the Swegon CASA modbus list (R4-C). This is probably the same for other models as well. We are reading the model name from the device, and as long as we're able to do that we could automatically select a modbus list. Or maybe have a selection for devices in the integration configuration. Let me know if this is needed and we can figure it out!
+The integration supports CASA R4, R7, and R15. Select the device model during setup so the integration uses the corresponding Modbus datapoints. The R7 implementation includes its model-specific settings, cooker hood command, rotor speed, and summer cooling status.

@@ -91,6 +91,7 @@ class SwegonCoordinator(DataUpdateCoordinator):
                 await self._swegonDevice.readSensors()
                 await self._swegonDevice.readCommands()
                 await self._swegonDevice.readUnitStatuses()
+                await self._swegonDevice.readR7Extras()
                 
         except Exception as err:
             _LOGGER.debug("Failed when fetching data: %s", str(err))
@@ -124,6 +125,13 @@ class SwegonCoordinator(DataUpdateCoordinator):
         for i, config in enumerate(configs):
             options.update({i:config})
         return options
+
+    def has_datapoint(self, group, key):
+        """Return whether this device model defines a datapoint."""
+        return (
+            group in self._swegonDevice.Datapoints
+            and key in self._swegonDevice.Datapoints[group]
+        )
 
     def get_value(self, group, key):
         if group in self._swegonDevice.Datapoints:

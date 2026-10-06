@@ -15,6 +15,7 @@ SwegonEntity = namedtuple('SwegonEntity', ['group', 'key', 'entityName', 'data_t
 ENTITIES = [
     SwegonEntity("Commands", "Fireplace_Mode", "Fireplace Mode", DATA_TYPE(None, None)),
     SwegonEntity("Commands", "Travelling_Mode", "Travelling Mode", DATA_TYPE(None, None)),
+    SwegonEntity("Commands", "Cooker_Hood", "Cooker Hood", DATA_TYPE(None, None)),
 ]
 
 async def async_setup_entry(hass, config_entry, async_add_devices):
@@ -27,7 +28,8 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
 
     # Create entities for this device
     for swegonentity in ENTITIES:
-        ha_entities.append(SwegonSwitchEntity(coordinator, swegonentity))
+        if coordinator.has_datapoint(swegonentity.group, swegonentity.key):
+            ha_entities.append(SwegonSwitchEntity(coordinator, swegonentity))
 
     async_add_devices(ha_entities, True)
 

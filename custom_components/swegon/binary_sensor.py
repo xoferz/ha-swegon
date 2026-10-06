@@ -12,10 +12,12 @@ _LOGGER = logging.getLogger(__name__)
 DATA_TYPE = namedtuple('DataType', ['deviceClass', 'category', 'icon'])
 DATA_TYPES = {}
 DATA_TYPES["Active_Alarms"] = DATA_TYPE(BinarySensorDeviceClass.PROBLEM, None, "mdi:bell")
+DATA_TYPES["Summer_Cooling_Active"] = DATA_TYPE(None, None, "mdi:snowflake")
 
 SwegonEntity = namedtuple('SwegonEntity', ['group', 'key', 'entityName', 'data_type'])
 ENTITIES = [
     SwegonEntity("Alarms", "Active_Alarms", "Active Alarms", DATA_TYPES["Active_Alarms"]),
+    SwegonEntity("R7Statuses", "Summer_Cooling_Active", "Summer Cooling Active", DATA_TYPES["Summer_Cooling_Active"]),
 ]
 
 async def async_setup_entry(hass, config_entry, async_add_devices):
@@ -28,7 +30,8 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
 
     # Create entities for this device
     for swegonentity in ENTITIES:
-        ha_entities.append(SwegonBinarySensorEntity(coordinator, swegonentity))
+        if coordinator.has_datapoint(swegonentity.group, swegonentity.key):
+            ha_entities.append(SwegonBinarySensorEntity(coordinator, swegonentity))
 
     async_add_devices(ha_entities, True)
 
@@ -45,6 +48,8 @@ class SwegonBinarySensorEntity(SwegonBaseEntity, BinarySensorEntity):
     @property
     def extra_state_attributes(self):
         """Return entity specific state attributes."""
+        if self._key != "Active_Alarms":
+            return {}
         attrs = {}
         alarms = self.coordinator._swegonDevice.Datapoints["Alarms"]
         for (dataPointName, data) in alarms.items():

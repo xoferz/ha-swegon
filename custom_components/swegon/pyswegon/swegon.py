@@ -24,6 +24,10 @@ VIRTUALSENSORS = "VirtualSensors"
 UNIT_STATUSES = "UnitStatuses"
 CONFIG = "Config"
 
+# R7 registers outside the common contiguous register groups.
+R7_CONFIG = "R7Config"
+R7_STATUSES = "R7Statuses"
+
 MODE_INPUT = 3
 MODE_HOLDING = 4
 
@@ -42,6 +46,9 @@ class Swegon():
         if module_name == 'casa_r4':
             from .devices.casa_r4 import CasaR4
             self.Datapoints = CasaR4().Datapoints
+        elif module_name == 'casa_r7':
+            from .devices.casa_r7 import CasaR7
+            self.Datapoints = CasaR7().Datapoints
         elif module_name == 'casa_r15':
             from .devices.casa_r15 import CasaR15
             self.Datapoints = CasaR15().Datapoints
@@ -56,9 +63,9 @@ class Swegon():
 
     def getMode(self, group) -> int:
         # Used to determine if a group is holding registers or input registers
-        if group in (COMMANDS, SETPOINTS, CONFIG):
+        if group in (COMMANDS, SETPOINTS, CONFIG, R7_CONFIG):
             return MODE_HOLDING
-        elif group in (DEVICE_INFO, ALARMS, SENSORS, SENSORS2, UNIT_STATUSES):
+        elif group in (DEVICE_INFO, ALARMS, SENSORS, SENSORS2, UNIT_STATUSES, R7_STATUSES):
             return MODE_INPUT
         else:
             return MODE_INPUT     
@@ -121,6 +128,14 @@ class Swegon():
 
     async def readUnitStatuses(self):
         await self.readGroup(UNIT_STATUSES)
+
+    async def readR7Extras(self):
+        """Read R7-specific non-contiguous datapoints when present."""
+        for group in (R7_CONFIG, R7_STATUSES):
+            if group not in self.Datapoints:
+                continue
+            for key in self.Datapoints[group]:
+                await self.readValue(group, key)
 
     """ ******************************************************* """
     """ ******************** READ GROUP *********************** """
